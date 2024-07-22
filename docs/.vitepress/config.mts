@@ -2,8 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base:'/repo/',
-  srcDir:'src',
+  base:"/repo/",
   title: "My Awesome Project",
   description: "A VitePress Site",
   themeConfig: {
@@ -16,7 +15,6 @@ export default defineConfig({
     sidebar: [
       {
         text: 'Examples',
-        
         items: [
           { text: 'Markdown Examples', link: '/markdown-examples' },
           { text: 'Runtime API Examples', link: '/api-examples' }
