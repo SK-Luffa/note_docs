@@ -21,5 +21,6 @@ features:
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
   - title: Feature C
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    link: /about
 ---
 

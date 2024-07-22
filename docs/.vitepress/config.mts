@@ -3,22 +3,20 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
 
-  srcDir:'./src',
-  base:"/note_docs/",
-  title: "My Awesome Project",
-  description: "A VitePress Site",
-  locales:{
-    root:{
-      label:'English',
-      lang:'en'
-    },
-    fr:{
-      label: 'French',
-      lang: 'fr', // 可选，将作为 `lang` 属性添加到 `html` 标签中
-      link: '/fr/guide' // 默认 /fr/ -- 显示在导航栏翻译菜单上，可以是外部的
-    }
+  srcDir: './src',
+  base: "/note_docs/",
+  title: "大专哥",
+  description: "SK-LUFFA",
+  rewrites:{
+   'src/(.*)': ':src/index.md'
   },
   themeConfig: {
+    footer: {
+      message: '<a style="text-decoration: none;" href="https://vitepress.dev/zh/">本文档由Vitepress提供技术支持</a>',
+      copyright: '<a style="text-decoration: none;" href="https://github.com/SK-Luffa">© SK-LUFFA</a>'
+    },
+    i18nRouting: true,
+
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
