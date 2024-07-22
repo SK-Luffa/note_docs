@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  srcDir:'./src',
   base:"/repo/",
   title: "My Awesome Project",
   description: "A VitePress Site",
