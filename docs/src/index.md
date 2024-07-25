@@ -7,7 +7,7 @@ hero:
   text: "前端进击之路"
   tagline: 如果你从这里得到了帮助，请为我点击<a class='star' href='https://github.com/SK-Luffa/note_docs'>Star</a>
   image:
-    src: ./img/home.jpg
+    src: https://avatars.githubusercontent.com/u/52227746?s=400&u=785c2e323003c6873019faa692c935d55ae8aec0&v=4
     
   actions:
     - theme: brand
