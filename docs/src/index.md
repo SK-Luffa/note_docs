@@ -27,7 +27,7 @@ features:
     icon:  🛠️
   - title: 八股与面试 
     details: 一些八股文，以及个人的面试经历
-    link: /pages/interview
+    link: /pages/FixedArticle/vue
     icon: 📝
   - title: 思考
     details: 对于业务和产品的思考，包括但不限于对于硬件和软件

@@ -7,36 +7,36 @@ export default defineConfig({
   base: "/note_docs/",
   title: "首页",
   description: "SK-LUFFA",
+  
   rewrites: {
     'src/(.*)': ':src/index.md'
   },
-
   themeConfig: {
+    outline:{
+      level:[1,2],
+      label:'页面导航'
+    },
     footer: {
       message: '<a style="text-decoration: none;" href="https://vitepress.dev/zh/">本文档由VitePress提供技术支持</a>',
       copyright: '<a style="text-decoration: none;" href="https://github.com/SK-Luffa">© SK-LUFFA</a>'
     },
     i18nRouting: true,
 
-    // https://vitepress.dev/reference/default-theme-config
-    // nav: [
-    //   { text: 'Home', link: '/' },
-    //   { text: 'Examples', link: '/markdown-examples' }
-    // ],
+   
 
     sidebar: [
       {
-        text: 'Examples',
+        text: '技术类',
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
+          // { text: 'vue', link: '/FixedArticle' },
+          // { text: 'Runtime API Examples', link: '/api-examples' }
         ]
       },
       {
-        text: 'Examples',
+        text: '面试与八股',
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
+          { text: 'vue', link: '/pages/FixedArticle/vue' },
+       
         ]
       }
     ],
