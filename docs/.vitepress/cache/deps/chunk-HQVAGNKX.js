@@ -7527,7 +7527,7 @@ function useModel(props, name, options = EMPTY_OBJ) {
   const modifiers = getModelModifiers(props, name);
   const res = customRef((track2, trigger2) => {
     let localValue;
-    let prevSetValue;
+    let prevSetValue = EMPTY_OBJ;
     let prevEmittedValue;
     watchSyncEffect(() => {
       const propValue = props[name];
@@ -7542,7 +7542,7 @@ function useModel(props, name, options = EMPTY_OBJ) {
         return options.get ? options.get(localValue) : localValue;
       },
       set(value) {
-        if (!hasChanged(value, localValue)) {
+        if (!hasChanged(value, localValue) && !(prevSetValue !== EMPTY_OBJ && hasChanged(value, prevSetValue))) {
           return;
         }
         const rawProps = i.vnode.props;
@@ -7553,7 +7553,7 @@ function useModel(props, name, options = EMPTY_OBJ) {
         }
         const emittedValue = options.set ? options.set(value) : value;
         i.emit(`update:${name}`, emittedValue);
-        if (value !== emittedValue && value !== prevSetValue && emittedValue === prevEmittedValue) {
+        if (hasChanged(value, emittedValue) && hasChanged(value, prevSetValue) && !hasChanged(emittedValue, prevEmittedValue)) {
           trigger2();
         }
         prevSetValue = value;
@@ -9635,7 +9635,7 @@ function isMemoSame(cached, memo) {
   }
   return true;
 }
-var version = "3.4.33";
+var version = "3.4.34";
 var warn2 = true ? warn$1 : NOOP;
 var ErrorTypeStrings = ErrorTypeStrings$1;
 var devtools = true ? devtools$1 : void 0;
@@ -11419,7 +11419,7 @@ export {
 
 @vue/shared/dist/shared.esm-bundler.js:
   (**
-  * @vue/shared v3.4.33
+  * @vue/shared v3.4.34
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **)
@@ -11427,14 +11427,14 @@ export {
 
 @vue/reactivity/dist/reactivity.esm-bundler.js:
   (**
-  * @vue/reactivity v3.4.33
+  * @vue/reactivity v3.4.34
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **)
 
 @vue/runtime-core/dist/runtime-core.esm-bundler.js:
   (**
-  * @vue/runtime-core v3.4.33
+  * @vue/runtime-core v3.4.34
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **)
@@ -11442,7 +11442,7 @@ export {
 
 @vue/runtime-dom/dist/runtime-dom.esm-bundler.js:
   (**
-  * @vue/runtime-dom v3.4.33
+  * @vue/runtime-dom v3.4.34
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **)
@@ -11450,9 +11450,9 @@ export {
 
 vue/dist/vue.runtime.esm-bundler.js:
   (**
-  * vue v3.4.33
+  * vue v3.4.34
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **)
 */
-//# sourceMappingURL=chunk-KV7T6ZSY.js.map
+//# sourceMappingURL=chunk-HQVAGNKX.js.map
