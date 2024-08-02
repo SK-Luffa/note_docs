@@ -455,11 +455,6 @@ vue3相比较vue2：
 ### 更易使用
 - 响应式api暴露出来
 
-# vue3 新特性
-- framents 多个根组件
-- Teleport Teleport 是一种能够将我们的模板移动到 DOM 中 Vue app 之外的其他位置的技术
-- createRender 能够构建自定义渲染器，我们能够将 vue 的开发模型扩展到其他平台  我们可以将其生成在canvas画布上
-- composition Api 更加容易维护我们的代码，将相同功能的变量进行一个集中式的管理
 
 
    

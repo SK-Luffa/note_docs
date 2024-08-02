@@ -36,6 +36,7 @@ export default defineConfig({
         text: '面试与八股',
         items: [
           { text: 'vue', link: '/pages/FixedArticle/vue' },
+          { text: 'vue3', link: '/pages/FixedArticle/vue3' },
        
         ]
       }
