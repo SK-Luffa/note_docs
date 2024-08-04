@@ -37,6 +37,7 @@ export default defineConfig({
         items: [
           { text: 'vue', link: '/pages/FixedArticle/vue' },
           { text: 'vue3', link: '/pages/FixedArticle/vue3' },
+          { text: 'ES6', link: '/pages/FixedArticle/ES6' },
        
         ]
       }

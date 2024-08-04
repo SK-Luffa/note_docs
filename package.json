@@ -1,13 +1,13 @@
 {
   "scripts": {
-    "dev":"pnpm run docs:dev",
-    "build":"pnpm run docs:build",
-    "preview":"pnpm run docs:preview",
+    "dev": "pnpm run docs:dev",
+    "build": "pnpm run docs:build",
+    "preview": "pnpm run docs:preview",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
   },
-  "dependencies": {
+  "devDependencies": {
     "vitepress": "^1.3.1"
   }
 }
