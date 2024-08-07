@@ -8,8 +8,8 @@
 - 使用       能使用const应该尽量使用const ，如果不行就是用let，应尽量减少或者不使用var
   
 
-# ES6数组中新增了那些扩展？
-## 扩展运算符“...” 将一个数组展开
+
+# 扩展运算符“...” 将一个数组展开
 例如：
 ```js
  const s=[1,2,3] 
@@ -65,8 +65,113 @@ Array.of()
 - keys()：返回当前数组的key（键名）
 - values()：返回当前数组的value（值）
 - includes(): 传递一个参数，用来判断数字中是否包含此项，返回true或者false
-- flat()：对数组进行**一层**扁平化处理，对原数组没有影响
-- flatMap()：对数组进行完全扁平化处理，不会对原数组产生影响
+- flat()：对数组进行**默认一层**扁平化处理，对原数组没有影响
+- flatMap()：对数组的每一个成员执行一遍Array.prototype.map(),然后在对返回的数组执行flat方法，不会改变原数组
+
+####  copyWithin()
+```js
+// copyWithin(target,start,end)  
+// 传递个参数 target（必填）：从该位置开始替换数据。如果为负值，表示倒数
+// start(可选)：从该位置开始替换数据，默认为0，如果为负数，表示从末尾开始计算
+//end（可选）：到该位置前停止读取数据，默认等于数组长度。如果为负值，表示从末尾开始计算
+[1,2,3,4,5].copyWithin(0,3,4) [4,2,3,4,5]
+```
+#### find() 
+```js
+find() 
+// 传入一个函数，函数有三个参数 val,index,arr 分别对应数组的 值、下标、数组本身 返回数组对应的value值
+let s=[1,2,3,4,5].find((val,index,arr)=>val<3)
+// s=1
+let s=[1,2,3,4,5].find((val,index,arr)=>arr[index]>1)
+// s=2
+```
+```js
+// 传入一个函数，函数有三个参数 val,index,arr 分别对应数组的 值、下标、数组本身 返回数组对应的下标
+let s=[1,2,3,4,5].find((val,index,arr)=>val<3)
+// s=0
+let s=[1,2,3,4,5].find((val,index,arr)=>arr[index]>1)
+// s=1
+```
+#### fill()
+```js
+fill()
+//接受三个参数，第一个参数用于填充当前数组，第二个参数用于指定填充的开始位置下标，第三个参数用于指定填充的结束下标
+let s=[1,2,3,4,5].fill(1,2,3)
+// s=[1,2,1,4,5]
+```
+### 注意：填充的类型如果是对象，那么则是浅拷贝
+
+#### entries()、keys()、values()
+```js
+entries()
+for (let [index,ele] of ['a', 'b'].entries()) {
+  console.log(index,ele);
+}
+// 输出：0 'a'  
+//      1 'b'
+keys()
+for (let [index] of ['a', 'b'].keys()) {
+  console.log(index);
+}
+// 输出 0，1
+values()
+for (let [index] of ['a', 'b'].values()) {
+  console.log(index);
+}
+// 输出 a，b
+```
+#### includes()
+```js
+// 用于判断数组中是否包含某项 接受两个参数 第一个表示判断的值 ，第二个参数表示搜索的起始位置
+[1,2,3,4].includes(2) //true
+[1,2,3,4].includes(2,2)//false
+```
+#### flat()、flatMap() 
+```js
+// flat() 接受一个参数number，默认为1 表示需要拉平几层参数
+[1,2,3,[1,2,[1,2,3]]].flat()
+//  [1, 2,3, 1,2 [1,2,3]]
+[1,2,3,[1,2,[1,2,3]]].flat(2)
+//  [1, 2,3, 1,2 1,2,3]
+
+// flatMap()  对数组的每一个成员执行一遍Array.prototype.map(),然后在对返回的数组执行flat方法，不会改变原数组
+// 传递两个参数第一个参数表示 map里的函数，第二个参数表示this  
+
+[1,2,3,[1,2,[1,2,3]]].flatMap(x=>[x,x*2])
+// [1, 2, 2, 4, 3, 6, Array(3), NaN]
+```
+### 注意flatMap也是浅拷贝，并且只能设置  铺平一层
+
+# 数组空位
+空位是指，这个数组上没有任何值
+- Es6明确将空位转换为undefined，包括 from、扩展运算符、conpyWithin、fill、entries、keys、values、find、findIndex
+
+# 数组排序
+将sort()设置为稳定的排序算法
+```js
+const arr = [
+  'peach',
+  'straw',
+  'apple',
+  'spork'
+];
+
+const stableSorting = (s1, s2) => {
+  if (s1[0] < s2[0]) return -1;
+  return 1;
+};
+
+arr.sort(stableSorting)
+// ["apple", "peach", "straw", "spork"]
+```
+
+# 对象 属性的简写
+在ES6当中如果对象的key与value是一致的，那吗就可以简写
+```js`
+const s={foo:foo}
+//等同于
+const s={foo}
+```
 
 
 
