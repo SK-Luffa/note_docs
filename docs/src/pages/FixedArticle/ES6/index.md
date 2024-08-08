@@ -394,3 +394,105 @@ p()//123
 - 不可以当做构造函数，所以不能使用new关键字，否则报错
 - 不可以使用arguments对象，该函数体内不存在，如果要使用可以使用rest(剩余参数)关键字代替
 - 不可以使用yieid命令，因此箭头函数不能用作 Generator 函数
+
+# Set和Map
+- Set是一种叫做集合的数据结构，Map是一种叫做字典的数据结构
+### 集合与字典
+- 集合：是由一堆无序的、相关联的，且不重复的内存结构（数学中称之为元素）组成的组合
+- 字典：是一些元素的组合。每一个元素有一个称作key的域，不同元素的key各不相同
+#### 区别？
+- 共同点：集合、字典都可以存储不重复的值
+- 不同点：集合是以[值,值]的形式存储元素，字典是以[键,值]的形式存储
+## Set
+- Set是es6新增的数据结构，类似于数组，但是成员的值都是唯一的，没有重复的值，我们一般称为集合
+- Set本身是一个构造函数，用来生成Set数据结构
+  ```js
+  const s=new Set();
+  ```
+### Set的增删改查：Set的实例关于增删改查的方法
+- add() 增加
+- delete() 删除
+- has() 修改
+- clear() 查询
+
+#### add()
+- 添加某个值，返回Set结构本身
+- 当添加的实例中已经存在该元素，Set不会进行处理添加
+```js
+const s=new Set();
+s.add(1).add(2).add(1);//1只会被添加一次
+```
+#### delete()
+- 删除某个值，返回一个布尔值，表示是否删除
+```js
+const s=new Set();
+const p= s.add(1).add(2).delete(1); //s为{2}  p=true
+```
+#### has() 
+- 返回一个布尔值，判断该值是否为Set成员
+```js
+const s=new Set();
+const p= s.add(1).add(2).delete(1).has(2); //s为{2}  p=true
+```
+#### clear()
+- 清除所有成员，没有返回值
+```js
+const s=new Set();
+s.add(1).add(2).delete(1)
+s.clear(2); //s为空
+```
+### 遍历
+Set实例的遍历的方法如下：
+- keys(): 返回键名的遍历器
+- values(): 返回键值的遍历器
+- entries(): 返回键值对的遍历器
+- forEach(): 使用毁掉函数遍历每个对象
+##### Set的遍历顺序就是插入顺序
+- keys、values、entries 方法返回的都是遍历器对象
+```js
+let set=new Set(['red','green','blue'])
+for(let item in set.keys()){
+  consoel.log(item)
+}
+// red green blue
+for(let item in set.values()){
+  consoel.log(item)
+}
+// red green blue
+for(let item in set.entyies()){
+  consoel.log(item)
+}
+// ['red','red']['green','green']['blue','blue']
+```
+- forEach() 用于对每个成员执行某种操作，没有返回值，键值，键名都相等，同样的forEach方法有第二个参数，用于绑定处理函数的this
+```js
+let set=new Set([1,2,3])
+set.forEach((value,key)=>console.log(key+""+value))
+// 11  22 33
+```
+- 扩展运算符和Set相结合实现数组或者字符串去重
+```js
+//数组
+let arr=[1,2,3,3,2,4,4]
+let unique=[...new Set(arr)]//【1,2,3,4】
+//字符串
+let s='abaaccb'
+let uniqure=[... new Set(s)].join('')//abc
+```
+- 实现并集、交集、差集
+```js
+let a= new Set([1,2,3])
+let b= new Set([4,3,2])
+// 并集(指自身和对象重复的和不重复的，重复的指记作一个)
+let uni=new Set([...a,...b])
+// Set(4) {1, 2, 3, 4}
+
+//交集(指所共同拥有的)
+let inter=new Set([...a].filter(x=> b.has(x)))
+//Set(2) {2, 3}
+
+// （a 相对于 b 的）差集
+let difference = new Set([...a].filter(x => !b.has(x)));
+// Set {1}
+
+```
