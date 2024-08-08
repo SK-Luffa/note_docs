@@ -167,11 +167,230 @@ arr.sort(stableSorting)
 
 # 对象 属性的简写
 在ES6当中如果对象的key与value是一致的，那吗就可以简写
-```js`
+```js
 const s={foo:foo}
 //等同于
 const s={foo}
 ```
+### 注意：简写方法不能用作构造函数，否则会报错
+```js
+const obj = {
+  f() {
+    this.foo = 'bar';
+  }
+};
+new obj.f()
+//TypeError: obj.f is not a constructor
+```
 
+# 属性名表达式
+- ES6允许字面量定义对象时，将表达式放入括号内
+```js
+let lastword='last any'
 
+const a={
+  'first word':'hello'
+  [lastword]:'world'
+  a['first word']//"hello"
+  a[lastword] //"world"
+  a["last any"]//"world"
+}
+```
+- 表达式还可以用于定义方法名:
+```js
+  let obj={
+    ['a'+'ny'](){
+      return 'hello'
+    }
+  }
+  obj.any()//hello
+```
+### 注意：属性名表达式不能与简介表达式同时使用
+```js
+const foo='bar'
+const baz={[foo]}//报错 SyntaxError: Unexpected token '['
 
+const baz={[foo]:'bar'}//正确
+```
+#### 注意：属性名如果是一个对象，默认情况自动将对象转为字符串[object,object]
+```js
+const a={a:1}
+const b={b:2}
+const myObj={
+  [a]:132,
+  [b]:324
+}
+myObj//{[object Object]: 324}
+```
+
+# super 关键字  
+this对象指向函数所在的当前对象，ES6新增了一个关键字“super” 指向当前对象的原型对象
+```js
+const proto={
+  foo:"hello"
+}
+const obj={
+  foo:'word',
+  find(){
+    return super.foo
+  }
+}
+Object.setPrototypeOf(obj,proto)//设置obj的原型为proto
+obj.find()//输出hello
+```
+# 对象属性的遍历 (五种)
+- for...in：循环遍历自身和继承的可枚举属性（不包含symbol）
+- Object.keys(obj)：返回一个数组，包含对象自身的（不包含继承的）所有可枚举属性（不包含symbol）的属性名
+- Object.values（obj）：返回一个数组，包含对象自身的（不包含继承的）所有可枚举属性（不包含symbol）的属性值
+- Object.getOwnPropertyNames(object)：返回一个数组，包含对象自身的所有属性（不包含symbol，但是包含不可枚举的属性）的属性名
+- Object.getOwnPropertySymbol(object)：返回一个数组，包含对象自身的所有symbol属性的属性名
+- Reflect.ownKeys(obj):返回一个数组，包含自身的(不包含继承的)所有的属性名，不论属性名是symbol或是字符串，还是不可枚举
+
+### 上述遍历，都同样遵守属性遍历的次序规则
+1. 首先遍历所有的数值(number)键名，按照数值的升序排列
+2. 然后遍历所有的字符串(string)键名，按照加入的时间升序排列
+3. 最后遍历所有的symbol键名，按照加入的时间升序排列
+```js
+Reflect.ownKeys({ [Symbol()]:0, b:0, 10:0, 2:0, a:0 })
+//返回 ['2', '10', 'b', 'a', Symbol()]
+```
+# 函数的默认参数
+- es6允许为函数参数设置一个默认值
+```js
+const s=(x=3)=>{
+  console.log(x+1)
+}
+s()//输出4
+s(0) //输出1
+```
+- 参数是默认声明的，所以不能使用let 或const重复声明
+
+```js
+const s=(x=3)=>{
+  const s=123
+  console.log(x+1)
+}
+s()//error
+s(0) //error
+```
+- 默认参数可以和结构一起使用
+```js
+  const s=({a,x=3})=>{
+
+  console.log(a+x)
+}
+s()//error a is undefined
+s(0) //3
+s(0,1)//1
+```
+### 参数的默认值应该是函数的尾参数，如果不是非尾部参数，那么这个参数是没有办法省略的，也就是说 非尾部参数默认参数无效
+# 函数的属性
+## length属性
+- length将返回没有指定默认参数的参数个数
+```js
+  const s=({a,x=3})=>{
+
+  console.log(a+x)
+}
+s.length //1
+```
+- 剩余参数不会被计入到lenth
+```js
+  const s=(...a)=>{
+  }
+  
+s.length //0
+```
+- 如果默认参数不是尾参数，那么只会计数默认参数之前的非默认参数的个数
+```js
+ const s=(a,b,s=3,d)=>{
+  }
+  
+s.length //2
+```
+## name属性
+- 返回该函数的名称
+```js
+ const s=(a,b,s=3,d)=>{
+  }
+  
+s.name //s
+```
+- 如果将一个具名函数赋值给一个变量，则name属性会返回这个具名函数原本的名字
+```js
+ function s(){
+  }
+  const a=s
+  
+a.name //s
+```
+- Funtion 的构造函数的name属性为：'anonymous'
+```js
+(new Function).name
+//'anonymous'
+```
+- bind返回的函数，name属性值会在返回值前面添加 "bound" 前缀
+```js
+const s=()=>{}
+s.bind({}).name//"bound s"
+(()=>{}).bind({}).name //"bound"
+
+```
+# 函数作用域
+- 一旦设置了参数的默认值，函数进行声明初始化时，参数就会形成单独的一个作用域
+- 等初始化结束，这个作用域就会消失，这种语法行为在不设置默认参数时是不会出现的
+```js
+let x=1
+function s(y=x){
+  x=2,
+  console.log(y)
+}
+s()//1
+```
+# 严格模式
+- 只要函数参数使用了默认值、解构赋值、或者扩展运算符，那么函数内部就不能显式设定为严格模式，否则会报错
+```js
+// 报错
+function doSomething(a, b = a) {
+  'use strict';
+  // code
+}
+
+// 报错
+const doSomething = function ({a, b}) {
+  'use strict';
+  // code
+};
+
+// 报错
+const doSomething = (...a) => {
+  'use strict';
+  // code
+};
+
+const obj = {
+  // 报错
+  doSomething({a, b}) {
+    'use strict';
+    // code
+  }
+};
+```
+# 箭头函数
+- 使用“=>”定义函数 如果函数表达式内部只有一行，则可以省略“{}” 如果函数的参数只有一个也可以省略“()”
+```js
+cosnt s=s=>console.log(s) 
+s(1)//1
+
+```
+- 箭头函数本身没有this，this将会指向函数的外部 
+```js
+var s=123
+const p=()=>{console.log(s)}
+p()//123
+```
+## 箭头函数的特点：
+- 函数体内的this对象就是定义时的对象 ,而不是使用时的对象
+- 不可以当做构造函数，所以不能使用new关键字，否则报错
+- 不可以使用arguments对象，该函数体内不存在，如果要使用可以使用rest(剩余参数)关键字代替
+- 不可以使用yieid命令，因此箭头函数不能用作 Generator 函数
