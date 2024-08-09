@@ -410,11 +410,18 @@ p()//123
   const s=new Set();
   ```
 ### Set的增删改查：Set的实例关于增删改查的方法
+- size 成员个数
 - add() 增加
 - delete() 删除
 - has() 修改
 - clear() 查询
-
+#### size 
+- 查询当前Set 实例中成员的个数
+```js
+  const s=new Set();
+  s.add(1).add(2)
+   s.size//2
+```
 #### add()
 - 添加某个值，返回Set结构本身
 - 当添加的实例中已经存在该元素，Set不会进行处理添加
@@ -496,3 +503,174 @@ let difference = new Set([...a].filter(x => !b.has(x)));
 // Set {1}
 
 ```
+
+## Map
+- map类型是键值对的有序列表，而键和值都可以是任意类型
+- Map本身是一个构造函数，用来生成Map数据结构
+  
+### 增删改查
+Map实例针对增删改查有以下属性和操作方法
+- size属性 Map的数据长度
+- set()  Map写入
+- get() Map的读取
+- has()
+- delete()
+- clear
+#### size
+- size属性返回Map结构成员的总数
+```js
+const map=new Map()
+map.set('foo',true)
+map.set('bar',false)
+map.size //2
+```
+#### set
+- 向Map写入数据，传递两个参数 第一个参数为“键名”，第二个参数为“键值”
+- 如果“键名”重复，则更新当前“键值”
+- 如果当前是一个Map对象，则支持链式调用
+```js
+const s=new Map()
+s.set('1',1)//Map(1) {'1' => 1}
+s.set('1',2)//Map(1) {'1' => 2}
+s.set(0,1).set(undefined,123).set(null,"ss")//Map(4) {'1' => 2, 0 => 1, undefined => 123, null => 'ss'}
+```
+
+#### get
+- get方法读取key对应的键值，如果找不到key，就返回undefined
+```js
+const s=new Map()
+s.set('1',1)
+s.get('1')//1
+s.get(1)//undefined
+```
+#### has()
+- 返回一个布尔值，用于判断传入的参数是否包含在当前Map对象的“键名”中
+```js
+const s=new Map()
+s.set('1',1)
+s.has('1')// true
+s.has(1)//false
+```
+#### delete()
+- delete方法删除某个键，删除成功返回true，否则返回false  参数为“键名”
+```js
+const s=new Map()
+s.set('1',1)
+s.delete('1')// true
+s.has(1)//false
+```
+#### clear() 
+- 清除Map对象内的所有成员，没有返回值
+```js
+const s=new Map()
+s.set('1',1)
+s.clear() 
+s//Map(0) {size: 0}
+```
+
+### 遍历
+map结构提供三个遍历器生成函数和一个遍历方法
+- keys()  ：返回键名的遍历器
+- values()：返回键值的遍历器
+- entries()：返回键值对的遍历器
+- forEach()：遍历Map的所有成员
+  
+遍历的顺序就是插入的顺序
+```js
+const s=new Map()
+s.set(1,1).set(2,3).set(3,2)
+
+for(let item of s.keys()){
+  console.log(item)
+}
+//1 2 3
+
+for(let item of s.values()){
+  console.log(item)
+}
+//1 3 2
+
+for(let item of s.entries() ){
+  console.log(item)
+}
+//[1,1] [2,3] [3,2]
+
+s.forEach((value,key,map)=>{
+  console.log(key,value,map)
+})
+// 1 1 Map(3) {1 => 1, 2 => 3, 3 => 2}
+// 2 3 Map(3) {1 => 1, 2 => 3, 3 => 2}
+// 3 2 Map(3) {1 => 1, 2 => 3, 3 => 2}
+```
+# WeakSet和WeakMap
+## weakSet
+创建实例
+```js
+const ws=new WeakSet()
+```
+WeakSet 可以接受一个具有**Iterable** 接口的对象作为参数
+```js
+const a=[[1,2],[3,4]]
+const wk=new WeaSet(a)
+// WeakSet {[1,2],[3,4]}
+```
+在API中Set和MapSet的区别
+- 没有遍历操作的API
+- 没有size属性
+WeakSet成员只能是引用数据类型，不能是其他类型的值
+```js
+let ws=new WeakSet()
+//成员不是引用类型
+let weakSet=new WeakSet([2,3]);
+console,lig(weakSet) //报错
+
+//成员为引用类型
+let obj1={name:1}
+let obj2={name:2}
+let ws=new WeakSet([obj1,obj2]); 
+console.log(ws)
+```
+weakSet里面的引用只要在外部消失，它在WeakSet里面的引用也会自动消失
+## WeackMap
+WeakMap结构与Map结构类似，也是用于生成键值对的集合
+#### 在API中WeakMap与Map有两个区别
+- 没有遍历操作的API
+- 没clear方法
+```js
+// WeakMap 可以使用 set 方法添加成员
+const wm1 = new WeakMap();
+const key = {foo: 1};
+wm1.set(key, 2);
+wm1.get(key) // 2
+wm1 //WeakMap {{…} => 2}
+
+
+// WeakMap 也可以接受一个数组，
+// 作为构造函数的参数
+const k1 = [1, 2, 3];
+const k2 = [4, 5, 6];
+const wm2 = new WeakMap([[k1, 'foo'], [k2, 'bar']]);
+wm2 // WeakMap {Array(3) => 'bar', Array(3) => 'foo'}
+```
+### weakMap 只接受对象作为参数名(null除外)，不接受其他类型的值作为参数名
+```js
+const map = new WeakMap();
+map.set(1, 2)
+// TypeError: 1 is not an object!
+map.set(Symbol(), 2)
+// TypeError: Invalid value used as weak map key
+map.set(null, 2)
+```
+- WeakMap的键名所指向的对象，一旦不需要，里面的键名对象和所对应的键值会自动消失，不用手动去删除
+
+# Promise
+- promise是一种异步编程的解决方案，比传统的解决方案(回调函数)更加合理、更加强大
+## promise的优点：
+- 使用链式操作，降低了编码的难度
+- 代码的可读性增强
+## promise的状态
+promise有且仅有三种状态
+- pedding (进行中)
+- fulfilled (已成功)
+- rejected (已失败)
+ 
