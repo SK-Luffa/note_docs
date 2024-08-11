@@ -673,4 +673,457 @@ promise有且仅有三种状态
 - pedding (进行中)
 - fulfilled (已成功)
 - rejected (已失败)
- 
+## 特点：
+- 对象的状态不受外界影响。只有异步操作的结果，可以决定当前是哪一种状态
+- 一旦状态发生改变（从pending变为fulfilled或者从pending变为rejected），就不会再变，任何时候都必须满足这个条件
+## 用法
+Promise对象是一个构造函数，用来生成Promise实例
+```js
+const promise=new Promise((res,rej)=>{});
+```
+Promise构造函数接受一个函数作为参数，该函数的两个参数分别是resolve和reject
+- resolve 函数的作用是：将promise对象的状态从“未完成” 变为“成功”
+- reject  函数的作用是：将promise对象的状态从“未完成”变为“失败”
+
+### 实例方法
+Promise 构建出来的实例存在以下方法：
+.then()
+.catch()
+.finally()
+#### .then()
+- then是实例状态发生改变时的回调函数，第一个参数是resolved状态的回调函数，第二个参数是rejected状态的回调函数
+- then方法返回的是一个新的Promise实例，也就是Promise能链式书写的原因
+```js
+getJSON("/posts.json").then(function(json) {
+  return json.post;
+}).then(function(post) {
+  // ...
+});
+```
+#### .catch
+catch()方法是.then(null,rejection)或.then(undefined,rejection)的别名，用于指定发生错误的回调函数
+```js
+getJSON('/posts.json').then(function(posts) {
+  // ...
+}).catch(function(error) {
+  // 处理 getJSON 和 前一个回调函数运行时发生的错误
+  console.log('发生错误！', error);
+});
+```
+- Promise对象的错误具有“冒泡”性质，会一直向后传递，直到被捕获为止
+- 一般来说，使用catch方法代替.then()的第二个参数
+
+- promise对象抛出的错误不会传递到外层代码，即，外部代码不会有任何反应
+```js
+const asyncThing=()=>{
+  return new Promise((res,rej)=>{
+    res(x+2) //会报错，因为x没有声明
+  })
+}
+``` 
+浏览器运行到这一行，会打印出错误提示 ReferenceError：x is not defined，但是不会退出进行catch()方法之中，还能再抛出错误，通过后面的catch方法捕获
+
+#### finally()
+finally() 方法用于指定不管Promise对象最后状态如何，都会执行的操作
+```js
+promise
+.then()
+.catch()
+.finally()
+```
+### 构造函数方法
+Promise构造函数存在以下方法：
+- all()
+- rece()
+- allSettled()
+- resolve()
+- reject()
+- try()
+#### all()
+- Promise.all()方法用于将多个Promise实例，包装成一个新的Promise实例
+```js
+const p=Promise.all([p1,p2,p3]);
+```
+##### 接受一个数组(迭代对象)作为参数，数组成员都应为Promise实例
+##### 实例p的状态又 p1、p2、p3 决定，分为两种：
+- 只有p1、p2、p3 的状态都变成 fulfilled(成功)，p的状态才会变成 fulfilled（成功），此时 p1、p2、p3 的返回值组成一个数组，专递给p的回调函数
+- 只要p1 、p2、p3 之中有任何一个被rejected（失败），p的状态就变成了 rejected（失败），测试第一个被reject的实例的返回值，会传递给p的回调函数
+  
+### 注意，如果作为参数的 Promise实例，自己定义了catch方法，那么它一旦被rejected，并不会触发 Promise.all()的catch方法
+
+```js
+const p1 = new Promise((resolve, reject) => {
+  resolve('hello');
+})
+.then(result => result)
+.catch(e => e);
+
+const p2 = new Promise((resolve, reject) => {
+  throw new Error('报错了');
+})
+.then(result => result)
+.catch(e => console.log('只会触发这里',e));
+
+Promise.all([p1, p2])
+.then(result => console.log(result))
+.catch(e => console.log("错哪里了？",e));
+// 只会触发这里 Error: 报错了
+//     at <anonymous>:8:9
+//     at new Promise (<anonymous>)
+//     at <anonymous>:7:12
+// VM2160:14 (2) ['hello', undefined]
+// Promise {<fulfilled>: undefined}
+
+// 这里如果p2没有catch方法那么就会触发Promise.all() 自己的catch方法
+```
+### race()
+- Promise.race()方法同样是将多个Promise实例，包装成一个新的promise实例
+- 只要p1、p2、p3之中有一个实例率先改变状态，p的状态就跟着该改变
+```js
+const p=Promise.race([p1,p2,p3])
+```
+- 率先改变的Promise实例的返回值则传递给p的回调函数
+```js
+const p=Promise.race([
+    fetch('/resource-that-may-take-a-while'),
+  new Promise(function (resolve, reject) {
+    setTimeout(() => reject(new Error('request timeout')), 5000)
+  })
+])
+p.then(console.log(123)).catch(console.error)
+```
+### allSettled()
+Promise.allSettled()方法接受一组Promise实例作为参数，包装成一个新的Promise实例，只有等到所有的这些参数实例都返回结果以后，不管是fulfilled还是rerjcted，包装实例才会结束
+```js
+const promises=[fetch('/api-1'),fetch('/api-2'),fetch('/api-2')]
+const x= Promise.allSettled(promises)
+x.then(()=>{
+  console.log("ok")
+})
+```
+### resolve()
+将当前对象转换为Promise对象
+```js
+Promise().resolve('foo')
+//等价于
+new Promise(resolve=>resolve('foo'))
+```
+参数可以分成以下四种情况：
+- 参数是一个Promise实例，promise.resolve将不做任何修改、原封不动地返回这个实例
+- 参数是一个thenable对象，promise.resove会将这个对象转换为Promise对象，然后立即执行thenable对象的then()方法
+- 参数不是具有then()方法的对象，或者根本就不是对象，Promise.resolve() 会返回一个新的Promise对象，状态为resolved
+- 没有参数时，直接返回一个resolved状态的Promise对象
+
+### reject()
+Promise.reject(reason)方法也会返回一个新的Promise实例，该实例的状态为rejected
+```js
+const p=Promise.reject('出错了')
+//等价于
+const p =new  Promise((res,rej)=>rej('出错了'))
+//
+p.then(null,(s)=>{
+  console.log(s)
+})
+//出错了
+```
+Promise.reject()方法的参数，会原封不动地变成后续方法的参数
+```js
+Promise.reject('出错了')
+.catch(e=>{
+  console.log(e==="出错了")
+})
+//true
+```
+
+# Generator
+- Generator函数是ES6提供的一种异步编程的解决方案
+## Generator函数
+执行Generator函数 会返回一个遍历器对象，可以一次遍历Generator函数内部的每一个状态。形式上，Generator函数是一个普通的函数，但是具有两个特征：
+- funtion关键字与函数名之间有一个星号
+- 函数体内部使用yield表达式，定义不同的内部状态
+```js
+function* GeneratorHell0(){
+  yield 'hello'
+  yield 'world'
+  return 'ending'
+}
+```
+## 使用
+Generator函数会返回一个遍历器对象，即具有Symbol.iterator属性，并且返回给自己
+```js
+funtion* gen(){
+  //some code
+}
+const g=gen()
+g[Symbol.iterator]()===g
+//true
+```
+通过yield关键字可以暂停generator函数返回的遍历器对象的状态
+```js
+function* helloworldGenerator(){
+  yield 'hello'
+  yield 'world'
+  yield 'ending'
+}
+let hw= helloworldGenerator();
+```
+上述三个状态； hello、world、return、通过next方法才会遍历到下一个内部状态，器运行的逻辑如下：
+- 遇到yield表达式，就暂停执行后面的状态，并将紧跟在yield后面的那个表达式的值，作为返回的对象的value属性值。
+- 下一次调用next方法时，再继续往下执行，直到遇到下一个yield表达式
+- 如果没有遇到新的yield表达式，就一直运行到函数结束，直到return语句为止，并将return语句后面的表达式的值，作为返回的对象的value属性值
+- 如果该函数没有return语句，则返回的对象的value属性指为undefined
+```js
+hw.next()
+//{value:'hello',done :false}
+hw.next()
+// {value:'world',done :false}
+hw.next()
+// {value:'ending',done :true}
+hw.next()
+// {value:undefined,done :true}
+```
+- done 用来判断是否存在下个状态，value对应状态值
+- yield 表达式本身没有返回值，说着说总是返回undefined
+- 通过调用next方法可以带一个参数，该参数就会被当作上一个yield表达式的返回值
+```js
+function* foo(x) {
+  var y = 2 * (yield (x + 1));
+  var z = yield (y / 3);
+  return (x + y + z);
+}
+
+var a = foo(5);
+a.next() // Object{value:6, done:false}
+a.next() // Object{value:NaN, done:false}
+a.next() // Object{value:NaN, done:true}
+
+var b = foo(5);
+b.next() // { value:6, done:false }
+b.next(12) // { value:8, done:false }
+b.next(13) // { value:42, done:true }
+```
+正因为Generator函数返回iterator对象，因此我们还可以通过for...of进行遍历
+```js
+function* foo() {
+  yield 1;
+  yield 2;
+  yield 3;
+  yield 4;
+  yield 5;
+  return 6;
+}
+for (let v of foo()) {
+  console.log(v);
+}
+// 1 2 3 4 5
+```
+原生函数没有遍历接口，通过Generator函数为它加上这个接口，就能使用for...of进行遍历了
+```js
+function* objectEntries(obj){
+let propKeys=Reflect.ownKeys(obj)
+for(let propKey of propkeys){
+  yield [propkey,obj[propkey]]
+}
+let jane ={first:'jone',last:'done'}
+for (let item of jane){
+  console.log(item)
+}
+}
+```
+## 异步解决方案
+回顾之前展开异步的解决方案：
+- 回调函数
+- Promise对象
+- generator函数
+- async/await
+#####  这里通过文件读取案例，将几种异步解决的方案进行一个比较
+- 回调函数
+  所谓回调函数，就是把任务的第二段单独写在一个函数里面，等到重新执行这个任务的时候，在调用这个函数
+```js
+fs.readFile('/etc.fstab',(err,data)=>{
+  if(err) throw err
+  console.log(data)
+  fs.redfile('/etc/shells',(err,data)=>{
+    if(err) throw err;
+    console.log(data)
+  })
+})
+```
+readFile函数的第三个参数，就是回调函数，等到操作系统返回了 /etc/passwd 这个文件以后，回调函数才会执行
+
+- Promise 
+  promise就是为了解决回调地狱而产生的，将回调函数的嵌套，改为链式调用
+```js
+const fs = require('fs');
+
+const readFile = function (fileName) {
+  return new Promise(function (resolve, reject) {
+    fs.readFile(fileName, function(error, data) {
+      if (error) return reject(error);
+      resolve(data);
+    });
+  });
+};
+
+
+readFile('/etc/fstab').then(data =>{
+    console.log(data)
+    return readFile('/etc/shells')
+}).then(data => {
+    console.log(data)
+})
+```
+这种链式操作形式，使得异步任务的两段执行更清楚了，但是也存在了很明显的问题，代码变得冗余，语义话并不强
+- Generator
+  yield表达式可以暂停函数的执行，next方法用于恢复函数的执行，这使得Generator函数非常适合将异步任务同步化
+```js
+const gen = function* () {
+  const f1 = yield readFile('/etc/fstab');
+  const f2 = yield readFile('/etc/shells');
+  console.log(f1.toString());
+  console.log(f2.toString());
+};
+```
+- async/await
+  将上面Generator函数改成 async/await 形式，更为简洁，语义话更强了
+```js
+const asyncReadFile=async ()=>{
+    const f1 = await readFile('/etc/fstab');
+  const f2 = await readFile('/etc/shells');
+  console.log(f1.toString());
+  console.log(f2.toString());
+}
+```
+### 区别
+通过上述代码分析，将promise、Generator、async/await 进行比较：
+- promise和async/await 是专门用来处理异步操作的
+- Generator并不是为异步而设计出来的，他还有其他功能（对象迭代、控制输出、部署Interator接口...）
+- promise编写代码相比Generator、async 更为复杂化，且可读性也稍差
+- Generator、async 需要与promise 对象搭配处理异步情况
+- async实质是Generator的语法糖，相当于会自动执行 Generator函数
+- async使用上更为简洁，将异步代码以同步的形式进行编写，是处理异步函数的最终方案
+## 使用场景
+Generator 是异步解决的一种方案，最大特点则是将异步操作同步化表达出来
+```js
+function* loadUI(){
+  showLoadingScreen()
+  yield loadUIDataAsynchronously();
+  hideLoadingScreen()
+}
+let loader=loadUI()
+//加载UI
+loader.next()
+//卸载UI
+loader.next()
+```
+包括redux-saga中间件也充分利用了Generator的特性
+
+# Proxy
+## 介绍
+- 定义：用于定义基本操作的自定义行为
+- 本质：修改的是程序默认行为，就形同于在编程语言层面上做修改，属于元编程（meta programming）
+   -  元编程：Metaprogramming，又叫做超编程，是指某类计算机程序的编写，这类计算机程序编写或者操纵其他程序（或者自身）作为他们的数据，或者在运行时完成部分本应在编译时完成的工作
+一段代码来理解
+```js
+!/bin/bash
+# metaprogram
+echo '#!/bin/bash' >program
+for ((I=1; I<=1024; I++)) do
+    echo "echo $I" >>program
+done
+chmod +x program
+```
+这段程序每执行一次能帮我们生成一个名为program的文件，文件的内容为1024行 echo，如果我们手动来写1024行代码，效率显然低下
+- 元编程的优点：与手工编写全部代码相比，程序员可以获得更高的工作效率，或者给予程序更大的灵活性去处理新的情形而无需重新编译
+
+Proxy 亦是如此，用于创建一个对象的代理，从而实现基本操作的拦截和自定义（如属性查找、赋值、枚举、函数调用等）
+## 用法
+proxy 为构造函数，用来生成Proxy实例
+```js
+const proxy=new Proxy(target,handler)
+```
+#### 参数
+- target 表示所有拦截的目标对象（任何类型的对象，包括原生数组，函数，甚至是另一个代理）
+- handler 通常以函数作为属性的对象，各属性中的函数分别定义了在执行各种操作时代理对象的行为
+### handler解析
+关于handler拦截属性，有如下：
+- get(target,propKey,receiver): 拦截对象属性的读取
+- set(target,propKey,value,receiver): 拦截对象属性的设置
+- has(target,propKey): 拦截propKey in proxy 的操作，返回一个布尔值
+- deleteProperty(target,propKey)：拦截delete Proxy[propKey]d的操作，返回一个布尔值
+- ownKey(traget): 拦截Object.key(proxy)、for...in 等循环，返回一个数组
+- getOwnPropertyDescriptor(target,propKey)：拦截 Object.getOwnPropertyDescriptor(proxy,propKey)，返回一个布尔值
+- definProperty(target,propKey,propDesc)：拦截Object.defineProperty(proxy,propKey,propDesc), 返回一个布尔值
+- preventExtensions(target):拦截Object.preventExtensions(proxy),返回一个布尔值
+- getPrototypeOf(target):拦截Object.getPrototypeOf(proxy)，返回一个对象
+- isExtensible(target)：拦截Object.isExtensible(proxy),返回一个布尔值
+- setPrototypeOf(target,proto)：拦截Object.setPrototypeOf(proxy,proto)，返回一个布尔值
+- apply(target,object,args): 拦截Proxy 实力作为函数调用的操作
+- construct(target,args)：拦截Proxy 实例作为构造函数调用的操作
+
+### Reflect
+- 若需要在proxy内部调用对象的默认行为，建议使用Reflect ，他是ES6中操作对象而提供的新的API
+ 基本特点：
+ - 只要proxy对象具有的代理方法，Reflect对象全部具有，已静态方法的形式存在
+ - 修改某些Object方法的返回结果，让其变得更合理（定义不存在属性行为的时候不报错，而是返回false）
+ - 让Object操作都变成函数行为
+Proxy的几种用法
+- get()
+  get接受三个参数，以此为目标对象、属性名和peoxy实例本身，最后一个参数可选
+  ```js
+  const person={
+    name:'站三'
+  }
+  const proxy=new Proxy(person,{
+    get:(target,propKey)=>{
+      return Reflect.get(target,propKey)
+    }
+  })
+  proxy.name //张三
+  ```
+  get 能够对数组增删改查进行拦截
+  ```js
+  function createArray(...elements) {
+  let handler = {
+    get(target, propKey, receiver) {
+      let index = Number(propKey);
+      if (index < 0) {
+        propKey = String(target.length + index);
+      }
+      return Reflect.get(target, propKey, receiver);
+    }
+  };
+
+  let target = [];
+  target.push(...elements);
+  return new Proxy(target, handler);
+}
+
+let arr = createArray('a', 'b', 'c');
+arr[-1] // c
+```
+注意：如果一个属性不可匹配(configurable)且不可写（writable），则Proxy不能修改改属性，否则会报错
+```js
+const target = Object.defineProperties({}, {
+  foo: {
+    value: 123,
+    writable: false,
+    configurable: false
+  },
+});
+
+const handler = {
+  get(target, propKey) {
+    return 'abc';
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+proxy.foo
+// TypeError: Invariant check failed
+```
+### set()
+- set 方法用来拦截某个属性的复制操作，可以接受四个参数，依次为目标对象、属性名、属性值和Proxy实例本身
+- 假定Person对象有一个age属性，该属性应该是一个不大于200的整数，那么可以使用Proxy保证age的属性值符合要求
+  
