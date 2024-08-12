@@ -35,11 +35,10 @@ export default defineConfig({
       {
         text: '面试与八股',
         items: [
+          { text: 'JavaScript', link: '/pages/FixedArticle/JavaScript' },
+          { text: 'ES6', link: '/pages/FixedArticle/ES6' },
           { text: 'vue', link: '/pages/FixedArticle/vue' },
           { text: 'vue3', link: '/pages/FixedArticle/vue3' },
-          { text: 'ES6', link: '/pages/FixedArticle/ES6' },
-          
-       
         ]
       }
     ],

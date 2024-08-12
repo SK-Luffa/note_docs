@@ -1081,8 +1081,8 @@ Proxy的几种用法
   })
   proxy.name //张三
   ```
-  get 能够对数组增删改查进行拦截
-  ```js
+  - get 能够对数组增删改查进行拦截
+```js
   function createArray(...elements) {
   let handler = {
     get(target, propKey, receiver) {
@@ -1097,12 +1097,12 @@ Proxy的几种用法
   let target = [];
   target.push(...elements);
   return new Proxy(target, handler);
-}
-
-let arr = createArray('a', 'b', 'c');
-arr[-1] // c
+   let arr = createArray('a', 'b', 'c')
+   arr[-1] // c
 ```
-注意：如果一个属性不可匹配(configurable)且不可写（writable），则Proxy不能修改改属性，否则会报错
+
+- 注意：如果一个属性不可匹配(configurable)且不可写（writable），则Proxy不能修改改属性，否则会报错
+
 ```js
 const target = Object.defineProperties({}, {
   foo: {
@@ -1126,4 +1126,175 @@ proxy.foo
 ### set()
 - set 方法用来拦截某个属性的复制操作，可以接受四个参数，依次为目标对象、属性名、属性值和Proxy实例本身
 - 假定Person对象有一个age属性，该属性应该是一个不大于200的整数，那么可以使用Proxy保证age的属性值符合要求
-  
+```js
+let val={
+  set:(obj,prop,value)=>{
+    if(prop==='age'){
+      if(!Number.isInteger(value)){
+        throw new TypeError('The age is not integer')
+      }
+      if(value>200){
+        throw new TypeError('The age seems invalid')
+      }
+    }
+    //对于满足的age属性以及其他属性直接保存
+    obj[prop]=value
+  }
+}
+
+let person=new Proxy({},val)
+person.age=100;//100
+person.age='张三'//报错
+person.age=201//报错
+```
+- 如果目标对象自身的某个属性，不可写且不可配置，那么set方法将不起作用
+- 注意，严格模式下，set代理如果没有返回true，就会报错
+### deleteProperty()
+- deleteProperty 方法用于拦截delete操作，如果这个方法抛出错误或者返回false，当前属性就无法被delete命令删除
+```js
+const handler={
+  deleteProperty(target,key){
+    invariant(key,'delete');
+    Reflect.deleteProperty(target,key)
+    return true
+  }
+}
+
+const invar(key,action){
+  if(key[0]==='_'){
+    throw new Error(`无法删除私有属性`)
+  }
+}
+let target={__prop:'foo'};
+let proxy=new Proxy(target,handler)
+delete proxy._prop
+// Error: 无法删除私有属性
+```
+- 注意，目标自身的不可配置属性（configurable），不能被 deleteProperty 方法删除，否则报错
+
+### 取消代理
+```js
+Proxy.revocable(target,handler)
+```
+## 使用场景
+Proxy 其功能非常类似于设计模式中的代理模式，常用功能如下：
+- 拦截和监视外部对当前对象的访问
+- 降低函数或类的复杂度
+- 在复杂操作前对操作进行校验或者所需资源进行管理
+
+# Decorator(装饰器)
+## 介绍
+- Decorator 即装饰器，从名字上很容易让然联想到装饰者模式。简单来讲，装饰者模式就是在不改变原类和使用集成的情况下，动态的扩展对象功能的设计理念。 ES6当中的Decorator 的功能亦是如此，其本质是一个函数，用于扩展类属性和类方法
+
+- 这里定义一个士兵，他什么也没有
+```js
+ class soldier{
+
+ }
+```
+- 定义一个得到AK装备的函数，即装饰器
+```js
+const strong=(target)=>{
+target.AK=true
+}
+```
+- 使用该装饰器对士兵进行增强
+```js
+@strong
+class soldier{
+
+}
+```
+- 这时候士兵就有武器了
+```js
+soldier.AK//true
+```
+Decorator的优点：
+- 代码可读性增强，装饰器命名相当于一个注释
+- 在不改变原有代码的情况下，对原有的功能进行扩展
+## 用法
+Decorator 修饰对象为下面两种：
+- 类的装饰
+- 类属性的装饰
+
+### 类的装饰
+- 当对类本身进行装饰的时候，能够接收一个参数，即：类本身
+```js
+@decorator
+class A{}
+//等同于
+class A{
+  A =decorator(A)||A;
+}
+```
+- 下面@testable 就是一个装饰器，target就是传入的类，即MyTestableClass，实现了为类添加静态属性
+```js
+@testable
+class MyTestableClass {}
+
+const testable=(target)=>{
+  target.isTable=true
+}
+MyTestableClass.isTable //true
+```
+- 如果想要传递参数，可以在装饰器外部再封装一层函数
+```js
+const testable=(isTestable)=> {
+  return (target)=> {
+    target.isTestable = isTestable;
+  }
+}
+
+@testable(true)
+class MyTestableClass {}
+MyTestableClass.isTestable // true
+
+@testable(false)
+class MyClass {}
+MyClass.isTestable // false
+```
+
+### 类属性的装饰
+当对类属性进行装饰的时候，可以接受三个参数
+- 类的原型对象
+- 需要装饰的属性名
+- 装饰属性名的描述对象
+ 首先需要定一个 readonly 装饰器
+ ```js
+ const readonly=(target,name,descriptor)=>{
+  descriptor.writable =false//将可写属性设置为false
+  return descriptor
+ }
+ ```
+使用 readonly装饰类的name方法
+```js
+class Person{
+  @readonly
+  name(){return `${this.first} ${this.last}`}
+}
+```
+相当于以下调用
+```js
+readonly(Person.prototype, 'name', descriptor);
+```
+如果一个方法有多个装饰器，就像洋葱一样，先从外到内进入，再由内到外执行
+```js
+function dec(id){
+    console.log('evaluated', id);
+    return (target, property, descriptor) =>console.log('executed', id);
+}
+
+class Example {
+    @dec(1)
+    @dec(2)
+    method(){}
+}
+// evaluated 1
+// evaluated 2
+// executed 2
+// executed 1
+
+```
+外层装饰器@dec(1)先进入，但是内层装饰器@dec(2)先执行
+
+### 注意 装饰器不能用于装饰函数，因为函数存在变量声明的情况
