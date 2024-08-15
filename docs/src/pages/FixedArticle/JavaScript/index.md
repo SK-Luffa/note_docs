@@ -209,6 +209,72 @@ console.log(stringValue.substr(3, 7)); // "lo worl"
  - JQuery.extend()
  - JSON.stringify()
  - 手写一个循环递归
-# 总结
+## 总结
 - 浅拷贝是拷贝一层，属性为对象时，浅拷贝是复制，两个对象只想同一个地址
 - 深拷贝是递归拷贝深层次，属性为对象时，深拷贝时新开栈，两个对象指向不同的地址
+
+# 闭包
+## 解释
+ 存在子父级函数，子函数访问父级函数的变量就会产生闭包
+## 使用场景
+- 创建私有变量
+- 延长变量的生命周期
+# 作用域链
+## 作用域
+- 作用域：变量（变量作用域又称上下文）或函数生效的区域集合 
+作用域的划分：
+- 全局作用域：**任何不再函数或是大括号“{}”中声明的变量，都属于全局作用域，全局作用域可以在任意地方被访问**
+- 块级作用域：**ES6引入了let和const关键字，和var不同，在大括号内部“{}”使用let和const声明的变量和就存在于块级作用域内，大括号外部不能访问**
+- 函数作用域：**函数作用域也叫局部作用域，如果一个变量实在函数内部声明的它就在一个函数作用域下面，这些变量就只能在函数内部被访问，函数外部则不能访问**
+## 词法作用域
+词法作用域又叫静态作用域，变量被创建时就已经确定好了，而非执行阶段确定的。也就是说我们写好代码时它的作用域就已经确定了，JavaScript遵循的就是词法作用域
+### 作用域链
+当在JavaScript中使用一个变量时，首先js引擎会尝试在当前作用域内查找改变量，如果没有找到，他会向当前作用域的上层作用域，也就是外部去寻找，以此类推，直到全局作用域，如果在全局作用域找不到，那么直接报错，is not defined  这种一层一层查找变量规则的机制，就是作用域连
+# 原型，原型链
+## 原型
+- js是一种基于原型的语言，每个对象都拥有一个原型对象
+- 当试图访问一个变量上的属性时，它不仅仅在该对象上搜寻，还会搜寻该对象的原型，以及该对象原型的原型，依次层层向上搜索，直到找到一个名称匹配的属性或者到达原型链的末尾
+- 准确的说这些属性和方法定义在Object的构造器函数只上的Prototype属性上，而非实例对象本身
+函数可以有属性，每一个函数都有一个特殊的属性叫作“原型”（prototype） 原型对象上有一个自有属性 constructor，这个属性指向该函数
+## 原型链
+- 原型对象可能也拥有自己的原型，并从中继承方法和属性，一层一层，以此类推，这种关系尝尝被称之为原型链，它解释了一个对象为什么会拥有定义在其他对象上的属性和方法
+- 在对象实例和他的构造器之间建立了一个链接（__proto__属性，是构造函数的prototype派生的），之后通过上溯原型链，在构造器中找到这些属性和方法
+### 分析 （首先存在构造函数Person）
+- 构造函数Person存在原型对象Person.prototype
+- 构造函数生成实例对象person，person的__proto__指向构造函数Person的原型对象 也就是指向Person.prototype
+- Person.prototype的__proto_指向内置对象，因为Person.prototype是个对象，默认是由Object函数作为类创建的，而Object.prototype 为内置对象
+- Person的__proto__指向内置匿名函数anonymous，因为Person是个函数对象，默认由Function作为类创建
+- Function.prototype和Function.__proto__同时指向内置匿名函数anonymous，这样原型链的终点就是null
+## 总结
+概念：
+- __proto__作为不同对象之间的桥梁，用来指向创建它的构造函数的原型对象的
+- 每个对象的__proto__都是指向它的构造函数的原型对象 prototype的
+```js
+person1.__proto__===Person.prototype
+```
+- 构造函数是一个函数对象，是通过Function构造器产生的
+```js
+Person.__proto__===Function.prototype
+```
+- 所有的构造器都是函数对象，函数对象都是由Function构造产生的
+```js
+Object.__proto__===Function.prototype
+```
+- 原型对象本身是一个普通对象，而普通对象的构造函数都是Object
+```js
+Person.prototype.__proto__===Object.Prototype
+```
+- Function的原型同样是一个普通对象，所以__proto__也会指向Object的原型
+```js
+Function.prototype.__proto__===Object.prototype
+```
+- Object的原型也有__proto__属性，指向null，null是原型链的顶端
+```js
+Object.prototype.__proto__ === null
+```
+总结：
+- 一切对象都继承自Object对象，Object对象直接继承根源对象 null
+- 一切函数对象(包括object对象)，都继承自Function 对象
+- Object对象直接继承自Function对象
+- Function对象的__prop__会指向自己的原型对象，最终还是继承自Object对象
+ 
