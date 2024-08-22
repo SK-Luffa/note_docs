@@ -554,3 +554,240 @@ const reg=/ab{1,3}c/
 ```
 在匹配过程中，尝试可能的顺序是从多往少的方向去尝试，首先会尝试`bbb` ，然后再看整个正则是否能匹配，不能匹配时，吐出一个`b`，即在`bb`的基础上在进行尝试，以此重复
 
+如果多个贪婪词挨着，则深度优先搜索
+```js
+const string='132456'
+const regx=/(\d{1,3})(\d{1,3})/
+console.log(string.match(regx))
+// ['12345', '123', '45', index: 0, input: '12345', groups: undefined]
+```
+其中前面的 `\d{1,3}`匹配的是 123 后面的 `\d{1,3}` 匹配的是45
+
+### 懒惰模式
+惰性量词就是在贪婪量词之后加一个问号，表示尽可能少的匹配
+```js
+let string ='12345'
+let regx=/(\d{1,3}?)(\d{1,3})/
+console.log(string.match(regx))
+// ['1234', '1', '234', index: 0, input: '12345', groups: undefined]
+```
+其中 `\d{1,3}`只匹配到一个字符1，而后面的 \d{1,3}匹配了234
+
+### 分组
+- 分组主要是通过`()`来进行实现的，比如beyond{3} 是匹配d字母3次，而 (beyond){3}则表示匹配beyond字母三次
+- 在 `()`内使用`|`能达到或的效果，例如`(doc|xxx)`可以匹配doc或者xxx
+- 反向引用，巧用`$`分组捕获
+```js
+let str="John Smith"
+/ 交换名字和姓氏
+console.log(str.replace(/(john) (smith)/i, '$2, $1')) // Smith, John
+```
+
+## 匹配方法
+正则表达式常被用于某些方法，我们可以分为两类：
+- 字符串（str）方法：math、mathAll、search、replace、split
+- 正则对象下（regexp）的方法：test、exec
+
+
+| 方法     | 描述                                                         |
+| :------- | :----------------------------------------------------------- |
+| exec     | 一个在字符串中执行查找匹配的RegExp方法，它返回一个数组（未匹配到则返回 null）。 |
+| test     | 一个在字符串中测试是否匹配的RegExp方法，它返回 true 或 false。 |
+| match    | 一个在字符串中执行查找匹配的String方法，它返回一个数组，在未匹配到时会返回 null。 |
+| matchAll | 一个在字符串中执行查找所有匹配的String方法，它返回一个迭代器（iterator）。 |
+| search   | 一个在字符串中测试匹配的String方法，它返回匹配到的位置索引，或者在失败时返回-1。 |
+| replace  | 一个在字符串中执行查找匹配的String方法，并且使用替换字符串替换掉匹配到的子字符串。 |
+| split    | 一个使用正则表达式或者一个固定字符串分隔一个字符串，并将分隔后的子字符串存储到数组中的 `String` 方法。 |
+
+### str.match(regexp)
+`str.match(regexp)` 方法在字符串str中找到匹配`regexp`的字符
+
+- 如果`regexp` 不带有`g`标记，则它以数组的形式返回第一个匹配项，其中包含分组和属性`index`（匹配项的位置）、 input（输入字符串，等于`str`）
+```js
+let str = "I love JavaScript";
+
+let result = str.match(/Java(Script)/);
+
+console.log( result[0] );     // JavaScript（完全匹配）
+console.log( result[1] );     // Script（第一个分组）
+console.log( result.length ); // 2
+
+// 其他信息：
+console.log( result.index );  // 7（匹配位置）
+console.log( result.input );  // I love JavaScript（源字符串）
+```
+- 如果`regexp`带有`g`标记，则将它所有匹配项的数组作为字符串返回，而不包含分组和其他详细信息
+```js
+let str = "I love JavaScript";
+
+let result = str.match(/Java(Script)/g);
+
+console.log( result[0] ); // JavaScript
+console.log( result.length ); // 1
+```
+- 如果没有匹配项，则无论是否带有标记`g` ,都将返回null
+```js
+let str = "I love JavaScript";
+
+let result = str.match(/HTML/);
+
+console.log(result); // null
+```
+### str.matchAll(regexp)
+- 返回一个包含所有匹配正则表达式的结果及分组捕获组的迭代器
+```js
+const regexp = /t(e)(st(\d?))/g;
+const str = 'test1test2';
+
+const array = [...str.matchAll(regexp)];
+
+console.log(array[0]);
+// expected output: Array ["test1", "e", "st1", "1"]
+
+console.log(array[1]);
+// expected output: Array ["test2", "e", "st2", "2"]
+```
+### str.search(regexp)
+- 返回第一个匹配项的位置。如果未找到就返回 -1
+```js
+let str = "A drop of ink may make a million think";
+
+console.log( str.search( /ink/i ) ); // 10（第一个匹配位置）
+```
+- 这里需要注意，search仅查找第一个匹配项
+
+### str.replace(regexp)
+- 替换与正则表达式匹配的字符串，并返回替换后的字符串，在不设置全局匹配 `g`的时候，只替换第一个匹配成功的字符串片段
+```js
+const reg1=/javascript/i;
+const reg2=/javascript/ig;
+console.log('hello Javascript Javascript Javascript'.replace(reg1,'js'));
+//hello js Javascript Javascript
+console.log('hello Javascript Javascript Javascript'.replace(reg2,'js'));
+//hello js js js
+```
+### str.split(regexp)
+- 使用正则表达式（或子字符串）作为分隔符来分割字符串
+```js
+console.log('12, 34, 56'.split(/,\s*/)) // 数组 ['12', '34', '56']
+```
+### regexp.exec(str)
+- `regexp.exec(str)` 方法返回字符串`str`中的 `regexp` 匹配项，与以前的方法不同，它是在正则表达式而不是字符串上调用的
+- 根据正则表达式是否带有标志`g`,它的行为有所不同
+- 如果没有`g`那么`regexp.exec(str)`返回的第一个匹配项与`str.match(regexp)`完全相同
+- 如果有标记`g`,调用`regexp.exec(str)`会返回第一个匹配项，并将紧随其后的位置保存在属性 `regexp.lastIndex`中。下一次同样的调用会从位置 `lastIndex`开始搜索，返回下一个匹配项，并将其后的位置保存在 `regexp.lastIndex`中
+```js
+let str = 'More about JavaScript at https://javascript.info';
+let regexp = /javascript/ig;
+
+let result;
+
+while (result = regexp.exec(str)) {
+  console.log( `Found ${result[0]} at position ${result.index}` );
+  // Found JavaScript at position 11
+  // Found javascript at position 33
+}
+```
+### regexp.test(str)
+- 查找匹配项，然后返回true/false 表示是否存在
+```js
+let str = "I love JavaScript";
+
+// 这两个测试相同
+console.log( /love/i.test(str) ); // true
+```
+# 事件循环（event loop）
+## 什么是事件循环
+- 首先，js是一门单线程语言，意味着同一时间内只能做一件事情，但是这并不意味着单线程就阻塞，而实现单线程非阻塞的方法就是事件循环（Event Loop）
+在js中所有任务都可以分为：
+- 同步任务：立即执行的任务，同步任务一般会直接进入到主线程中执行
+- 异步任务：异步执行的任务，例如ajax请求，settimeout、promise.then()等
+
+ ### 过程：
+ 1. 首先任务会进入任务栈，判断是同步还是异步
+ 2. 如果是同步就推入主线程进行执行，如果是异步任务就放入事件队列当中
+ 3. 当同步任务执行完毕，就会去事件队列中读取对应的异步任务推入到主线程，然后判断当前异步内是同步还是异步，以此往复知道全部事件执行完毕
+## 宏任务和微任务
+- 在异步任务中，可以将任务划归为两类，一类是宏任务，一类是微任务
+### 微任务
+- 一个需要异步执行的函数，执行时机是在主函数执行结束之后、当前宏任务结束之前
+常见的微任务有：
+- promise.then
+- MutaionObserver
+- Object.Observer(已废弃，Proxy对象代替)
+- process.nextTick（Node.js）
+### 宏任务
+- 宏任务的事件粒度比较大，执行的时间间隔是不能精确控制的，对于一些高 实时性的需求就不太符合
+
+常见的宏任务有：
+- script(可以理解为外层同步代码)
+- setTimeout/setinterVal
+- UI rendering/UI 事件
+- postMassage、MessageChannel
+- setImmediate、I/O（Node.js）
+
+### 执行顺序
+1. 先执行一个宏任务
+2. 在执行一个微任务，直到整个微队列为空
+3. 再去执行下一个宏任务
+4. 重复以上过程
+
+## async与await
+- `async`是异步的意思。`await`则可以理解为 `async wait` 所以可以理解`async`就是用来声明一个异步方法，而`await`是用来等待异步方法执行
+### async
+- `async`函数返回一个`promise`对象,下面两种方法是等效的
+```js
+function f() {
+    return Promise.resolve('TEST');
+}
+
+// asyncF is equivalent to f!
+async function asyncF() {
+    return 'TEST';
+}
+```  
+### await
+- 正常情况下，`await`命令后面是一个promise对象，返回该对象的结果，如果不是Promise对象，就直接返回对应的值
+```js
+async function f(){
+    // 等同于
+    // return 123
+    return await 123
+}
+f().then(v => console.log(v)) // 123
+```
+不管 await 后面跟的是什么，await 都会阻塞后面的代码
+```js
+async function fn1 (){
+    console.log(1)
+    await fn2()
+    console.log(2) // 阻塞
+}
+
+async function fn2 (){
+    console.log('fn2')
+}
+
+fn1()
+console.log(3)
+```
+
+# Dom 常见操作
+
+## Dom常见操作分为以下几种
+- 创建节点
+- 查询节点
+- 更新节点
+- 添加节点
+- 删除节点
+
+## 创建节点
+- createElement : 创建新元素，接受一个参数，即要创建元素的标签名
+```js
+const divEl = document.createElement("div");
+```
+- createTextNode：创建一个文本节点
+```js
+const textEl = document.createTextNode("content");
+```
+  
