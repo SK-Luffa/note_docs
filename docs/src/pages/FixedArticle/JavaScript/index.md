@@ -790,4 +790,37 @@ const divEl = document.createElement("div");
 ```js
 const textEl = document.createTextNode("content");
 ```
-  
+- createDocumentFragment： 用来创建一个文档碎片，他表示一种轻量级的文档，主要是用来存储临时节点，然后把文档碎片的内容一次性添加到`DOM`中
+```js
+const fragment = document.createDocumentFragment();
+```
+当请求把一个 `DocumentFragment` 插入到文档树时，插入的不是 `DocumentFragment`自身，而是他的所有子孙节点
+- createAttribute：创建属性节点，可以是自定义属性
+```js
+const dataAttribute = document.createAttribute('custom');
+consle.log(dataAttribute);
+```
+## 获取节点
+- querySelector ：传入任何有效的Css选择器，即可选中首个`dom`元素。如果页面上没有指定元素，则返回null
+```js
+document.querySelector('.element')
+document.querySelector('#element')
+document.querySelector('div')
+document.querySelector('[name="username"]')
+document.querySelector('div + p > span')
+```
+- querySelectorAll：返回一个包含节点子树内所有与之相匹配的`Element`节点列表，如果没有相匹配的，则返回一个空节点列表
+```js
+const notLive = document.querySelectorAll("p");
+```
+需要注意的是，该方法返回的是一个 NodeList的静态实例，它是一个静态的“快照”，而非“实时”的查询
+### 关于获取dom元素还有以下方法：
+- document.getElementById('id属性值')：返回拥有指定id的对象的引用
+- document.getElementsByClassName('class属性值')：返回拥有指定class的对象集合
+- document.getElementsByTagName('标签名')：返回拥有指定标签名的对象集合
+- document.getElementsByName('name属性值')： 返回拥有指定名称的对象结合
+- document/element.querySelector('CSS选择器')：  仅返回第一个匹配的元素
+- document/element.querySelectorAll('CSS选择器')：   返回所有匹配的元素
+- document.documentElement：  获取页面中的HTML标签
+- document.body： 获取页面中的BODY标签
+- document.all['']：  获取页面中的所有元素节点的对象集合型
