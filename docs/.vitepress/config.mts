@@ -40,6 +40,8 @@ export default defineConfig({
           { text: 'ES6', link: '/pages/FixedArticle/ES6' },
           { text: 'vue', link: '/pages/FixedArticle/vue' },
           { text: 'vue3', link: '/pages/FixedArticle/vue3' },
+          { text: 'webpack', link: '/pages/FixedArticle/webpack' },
+          { text: '说明', link: '/pages/FixedArticle/README.md' },
         ]
       }
     ],
