@@ -126,4 +126,11 @@ HMR 全称 Hot Module Replacement，可以理解为模块热替换，指在应�
 ![alt text](image.png)
 - webpack Compile：将js代码编译成bundle.js
 - HMR Server:用来将热更新的文件输出给HMR Runtime
-- 
+- Bundle Server:静态资源文件服务器，提供文件访问路径
+- HMR Runtime：sokect服务器，会被注入到浏览器，更新文件的变化
+- bundle.js：构建输出文件
+- 在HMR Runtime和HMR Server之间建立websocket，即图上4号线，用于实时更新文件变化
+  
+上面图中，可以分为两个阶段
+- 启动阶段为上图1-2-A-B
+   在编写未经过webpack打包的源码后，webpack Compile 将源代码和HMR Runtime 一起编译成bundle文件 ，传输给Bundle Server 静态资源服务器
