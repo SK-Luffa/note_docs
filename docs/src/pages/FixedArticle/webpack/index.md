@@ -84,4 +84,46 @@ Plugin是一种计算机应用程序，它和主应用程序相互交互，以�
 
 是一种遵循一定规范的应用程序接口编写出来的程序，只能运行在程序规定的系统下，因为其需要调用原纯净系统提供的函数库或数据    
 
-webpack中的plugin也是如此
+webpack中的plugin也是如此, Plugin赋予其各种各样灵活的能力，例如打包优化、资源管理、环境变量注入等，他们会运行在webpack的不同阶段（钩子/生命周期），贯穿了webpack整个编译周期
+
+其目的是为了解决loader无法解决的事情
+
+## 特性
+其本质是一个具有apply的方法的JavaScript对象
+
+apply方法会被webpack compiler调用，并且在整个编译生命周期都可以访问compiler对象
+
+compiler hook 的tap 方法的第一个参数，应当是驼峰式命名的插件名称
+
+关于整个编译生命周期的钩子函数如下：
+
+- entry-option：初始化option
+- run
+- compile：真正开始的编译，在创建compilation 对象之前
+- compilation：生成好了compilation对象
+- make：从entry开始递归分析依赖，准备对每个模块进行build
+- after-compile：编译build过程结束
+- emit：再将内存中assets内容写到磁盘文件夹之前
+- after-emit：将内存中assets内容写到磁盘文件之后
+- done：完成所有的编译过程
+- failed：编译失败的时候
+  
+# plugin和loader的区别
+
+## 作用不同
+- loader是文件加载器，能够加载资源文件，并对这些文件进行一些处理，诸如编译、压缩等，最终一起打包到制定文件中
+- plugin赋予了 webpack各种更加灵活的功能，例如打包优化、资源管理、环境变量注入等。目的是为了解决loader无法实现的一些问题
+## 运行时机不同
+- loader运行在打包文件之前
+- plugins在整个编译过程中都起作用
+
+# webpack热更新及其原理
+
+## 热更新是什么？
+HMR 全称 Hot Module Replacement，可以理解为模块热替换，指在应用程序运行过程中，替换、添加、删除模块而无需刷新整个应用
+
+## 原理
+![alt text](image.png)
+- webpack Compile：将js代码编译成bundle.js
+- HMR Server:用来将热更新的文件输出给HMR Runtime
+- 
