@@ -127,10 +127,96 @@ HMR 全称 Hot Module Replacement，可以理解为模块热替换，指在应�
 - webpack Compile：将js代码编译成bundle.js
 - HMR Server:用来将热更新的文件输出给HMR Runtime
 - Bundle Server:静态资源文件服务器，提供文件访问路径
-- HMR Runtime：sokect服务器，会被注入到浏览器，更新文件的变化
+- HMR Runtime：socket服务器，会被注入到浏览器，更新文件的变化
 - bundle.js：构建输出文件
 - 在HMR Runtime和HMR Server之间建立websocket，即图上4号线，用于实时更新文件变化
   
 上面图中，可以分为两个阶段
 - 启动阶段为上图1-2-A-B
    在编写未经过webpack打包的源码后，webpack Compile 将源代码和HMR Runtime 一起编译成bundle文件 ，传输给Bundle Server 静态资源服务器
+
+- 更新阶段为上图1-2-3-4
+  当某一个文件或者模块发生变化时，webpack监听到文件变化对文件重新编译打包，编译生成唯一的hash值，这个hash值作为下一次热更新的标识
+
+  根据变化的内容生成两个补丁文件：manifest（包含了hash和chindId，用来说明变化的内容）和chunk.js模块
+
+  由于socket服务器在HMR Runtime和HMR Server之间建立websocket连接，当文件发生改动的时候，服务端会向浏览器推送一条信息，信息包含文件改动后生成的hash值，作为下一次热更新的标识
+
+
+## 总结
+关于webpack热更新的总结如下：
+- 通过webpack-dev-server 创建两个服务器：提供静态资源的服务（express）和Socket服务
+- express Server负责直接提供静态资源的服务（打包后的资源直接被浏览器请求和解析）
+- socket Server是一个websocket的长连接，双方可以通信
+- 当socket Server监听到对应模块发生变化时，会生成两个.json文件 (manifest文件)和.js文件（update chunk）
+- 通过长连接，socket Server可以直接将这两个文件发送给客户端（浏览器）
+- 浏览器拿到这两个新的文件后，通过HMR Runtime机制，加载这两个文件，并且针对修改的模块进行更新
+
+# webpack Proxy （接口代理）
+
+## webpack Proxy是什么？
+
+webpack Proxy，即webpack提供的代理服务
+
+基本行为就是接收客户端发送的请求后转发给其需要代理的服务器地址
+
+其目的是为了便于开发者在开发模式下解决跨域问题（浏览器安全策略限制）
+
+想要实现代理，首先需要一个中间服务器，webpack中提供服务器的工具为 webpack-dev-server
+
+### webpack-dev-server
+
+webpack-dev-server是webpack官方推出的一款开发工具，将自动编译和自动刷新浏览器等一系列对开发友好的功能全部集成在了一起，其目的是为了提高开发者日常的开发效率，只适用于在开发阶段
+
+关于配置方面，在webpack配置对象属性中通过devServer属性提供:
+
+devServer里面proxy则是关于代理的配置，该属性为对象的形式，对象中的每一个属性就是一个代理的匹配规则
+
+属性的名称是需要被代理的请求路径前缀，一般为了辨别都会设置前缀为 /api ,值为对应的代理匹配规则，对应如下：
+
+- target：表示的是代理到的目标地址
+- pathRewrite：默认情况下我们的 /api-hy 也会被写入到URL中，如果希望删除，可以使用pathRewrite
+- secure：默认情况下不接收转发到Https的服务器上，如果希望支持，可以设置为false
+- changeOrigin：他表示是否更新代理后请求的headers中的host地址
+
+## 工作原理
+
+proxy的工作原理实质上是利用http-proxy-middleware 这个http代理中间件，实现请求转发给其他服务器
+
+## 跨域
+在开发阶段，webpack-dev-server会启动一个本地开发服务器，所以我们的应用在开发阶段是独立运行在localhost的一个端口上，而后端服务又是运行在另一地址上，所以在开发阶段中，由于浏览器同源策略的原因当本地访问后端就会出现跨域请求的问题，通过设置webpack proxy实现代理请求后，相当于浏览器与服务端中添加一个代理者
+
+当本地发送请求的时候，代理服务器响应该请求，并将请求转发到目标服务器，目标服务器响应数据后再将数据返回给代理服务器，最终再由代理服务器将数据响应给本地
+![alt text](image-1.png)
+
+在代理服务器传递数据给本地浏览器的过程中，两者同源，所以不存在跨域行为，这个时候浏览器就能正常接受数据
+
+注意：服务器与服务器之间请求数据并不会产生跨域行为，跨域行为是浏览器安全策略限制
+
+
+# webpack性能优化
+- js代码压缩
+- css代码压缩
+- HTML文件代码压缩
+- 文件大小压缩
+- 图片压缩
+- Tree Shaking
+- 代码分离
+- 内联chunk
+# 提高webpack构建速度
+
+- 优化loader配置
+- 合理使用resolve.extensions
+- 优化resolve.modules
+- 优化resolve.alias
+- 使用DLLPlugin插件
+- 使用cache-loader
+- terser启动多线程
+- 合理使用sourceMap
+
+# 与webpack类似的工具还有哪些？
+- Rollup
+- Parcel
+- Snowpack
+- Vite
+- RSpack

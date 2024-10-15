@@ -41,6 +41,7 @@ export default defineConfig({
           { text: 'vue', link: '/pages/FixedArticle/vue' },
           { text: 'vue3', link: '/pages/FixedArticle/vue3' },
           { text: 'webpack', link: '/pages/FixedArticle/webpack' },
+          { text: '网络', link: '/pages/FixedArticle/internet' },
           { text: '说明', link: '/pages/FixedArticle/README.md' },
         ]
       }
