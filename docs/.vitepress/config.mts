@@ -29,7 +29,8 @@ export default defineConfig({
         text: '技术类',
         items: [
           // { text: 'vue', link: '/FixedArticle' },
-          {text:"Rust",link:'/pages/Rust'}
+          {text:"Rust",link:'/pages/Rust'},
+          {text:"手写一个脚手架",link:'/pages/Cli'}
         ]
       },
       {
