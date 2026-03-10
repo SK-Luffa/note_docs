@@ -45,6 +45,12 @@ export default defineConfig({
           { text: '网络', link: '/pages/FixedArticle/internet' },
           { text: '说明', link: '/pages/FixedArticle/README.md' },
         ]
+      },
+      {
+        text: '设计模式',
+        items: [
+          { text: '设计原则', link: '/pages/DesignPattern/README1.md' },
+        ]
       }
     ],
 
