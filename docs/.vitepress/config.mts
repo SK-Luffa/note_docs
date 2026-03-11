@@ -49,7 +49,10 @@ export default defineConfig({
       {
         text: '设计模式',
         items: [
-          { text: '设计原则', link: '/pages/DesignPattern/README1.md' },
+          { text: 'SOLID原则', link: '/pages/DesignPattern/README1.md' },
+          { text: '最小知识原则', link: '/pages/DesignPattern/README2.md' },
+           { text: '创建型模式-单例模式', link: '/pages/DesignPattern/README3.md' },  
+             { text: '创建型模式-简单工厂模式', link: '/pages/DesignPattern/README4.md' },  
         ]
       }
     ],
