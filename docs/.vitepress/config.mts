@@ -56,6 +56,7 @@ export default defineConfig({
           { text: '创建型模式-工厂方法模式', link: '/pages/DesignPattern/README5.md' },
           { text: '创建型模式-抽象工厂模式', link: '/pages/DesignPattern/README6.md' },
           { text: '结构型模式-装饰器模式', link: '/pages/DesignPattern/README7.md' },
+          { text: '结构型模式-适配器模式', link: '/pages/DesignPattern/README8.md' },
         ]
       }
     ],
